@@ -12,6 +12,8 @@ struct TypeDescriptor_Int : TypeDescriptor {
     virtual void dump(const void* obj, int /* unused */) const override {
         std::cout << "int{" << *(const int*) obj << "}";
     }
+
+    virtual void imguiRender(void* obj) override {}
 };
 
 template <>
@@ -30,6 +32,8 @@ struct TypeDescriptor_StdString : TypeDescriptor {
     virtual void dump(const void* obj, int /* unused */) const override {
         std::cout << "std::string{\"" << *(const std::string*) obj << "\"}";
     }
+
+    virtual void imguiRender(void* obj) override {}
 };
 
 template <>

@@ -1,7 +1,16 @@
+#pragma once
+
 #include <vector>
 #include <iostream>
 #include <string>
 #include <cstddef>
+
+
+template <typename T1, typename T2>
+inline size_t offset_of(T1 T2::* member) {
+	static T2 obj;
+	return size_t(&(obj.*member)) - size_t(&obj);
+}
 
 namespace reflect {
 
@@ -17,6 +26,7 @@ struct TypeDescriptor {
     virtual ~TypeDescriptor() {}
     virtual std::string getFullName() const { return name; }
     virtual void dump(const void* obj, int indentLevel = 0) const = 0;
+    virtual void imguiRender(void* obj) = 0;
 };
 
 //--------------------------------------------------------
@@ -79,10 +89,18 @@ struct TypeDescriptor_Struct : TypeDescriptor {
         std::cout << name << " {" << std::endl;
         for (const Member& member : members) {
             std::cout << std::string(4 * (indentLevel + 1), ' ') << member.name << " = ";
-            member.type->dump((char*) obj + member.offset, indentLevel + 1);
+			member.type->dump((char*)obj + member.offset, indentLevel + 1);
             std::cout << std::endl;
         }
         std::cout << std::string(4 * indentLevel, ' ') << "}";
+    }
+
+    virtual void imguiRender(void* obj) override
+    {
+        for (const Member& member : members)
+        {
+            member.type->imguiRender((char*)obj + member.offset);
+        }
     }
 };
 
@@ -146,6 +164,8 @@ struct TypeDescriptor_StdVector : TypeDescriptor {
             std::cout << std::string(4 * indentLevel, ' ') << "}";
         }
     }
+
+    virtual void imguiRender(void* obj) override {}
 };
 
 // Partially specialize TypeResolver<> for std::vectors:
